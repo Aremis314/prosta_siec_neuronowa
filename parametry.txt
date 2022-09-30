@@ -1,0 +1,3 @@
+Liczba ukrytych warstw:2;
+Waga początkowa każdej z warstw:0.5;
+Współczynnik uczenia:0.1;
