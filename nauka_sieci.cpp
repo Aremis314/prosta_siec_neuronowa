@@ -51,6 +51,9 @@ void mieszajTablice(double** tablicaParametrowa, int** tablicaGatunkowa, int roz
 
 void uczSiecNeuronowa(Neuron** siecNeuronowa, int liczbaWarstw, int* tablicaWielkosciWarstw, int liczbaWejsc, double wspolczynnikUczenia, double*** schowekTablicParametrowych, int*** schowekTablicGatunkowych, int* tablicaRozmiarowTablicIrysowych) {
     int licznikPetli { 0 };
+    double liczbaZgodnych = 0;
+    double ulamek = 0.0;
+    bool niewyuczona = true;
 //    double sredniNajmniejszyBladTreningowySieci { 10000.0 };
 //    double sredniObecnyBladTreningowySieci { 0.0 };
 //    double sredniNajmniejszyBladWalidacyjnySieci { 10000.0 };
@@ -73,16 +76,29 @@ void uczSiecNeuronowa(Neuron** siecNeuronowa, int liczbaWarstw, int* tablicaWiel
 //}
 
 
-    while(licznikPetli != 30000) {           // sredniBladSieci > 0.1 || rozgrzanie == false
+    while(niewyuczona) {           // sredniBladSieci > 0.1 || rozgrzanie == false
 
         irisTrainingArrayHandler = licznikPetli % tablicaRozmiarowTablicIrysowych[trybTreningowy];
 
-        if(licznikPetli % tablicaRozmiarowTablicIrysowych[trybTreningowy] == 0)
+        if(licznikPetli % tablicaRozmiarowTablicIrysowych[trybTreningowy] == 0) {
             mieszajTablice(schowekTablicParametrowych[trybTreningowy], schowekTablicGatunkowych[trybTreningowy], tablicaRozmiarowTablicIrysowych[trybTreningowy]);
 
-        if(licznikPetli % tablicaRozmiarowTablicIrysowych[trybWalidacyjny] == 0)
-            mieszajTablice(schowekTablicParametrowych[trybWalidacyjny], schowekTablicGatunkowych[trybWalidacyjny], tablicaRozmiarowTablicIrysowych[trybWalidacyjny]);
-//Neuron** siecNeuronowa, int liczbaWarstw, int* tablicaWielkosciWarstw, int* tablicaGatunkowa, double* tablicaParametrowa, int liczbaWejsc
+            liczbaZgodnych = 0;
+            for(int i = 0; i < tablicaRozmiarowTablicIrysowych[trybTestowy]; i++) {
+                nowaOdpowiedzSieci(siecNeuronowa, liczbaWarstw, tablicaWielkosciWarstw, schowekTablicParametrowych[trybTestowy][i], liczbaWejsc);
+                if(poprawnoscOdpowiedzi(siecNeuronowa[liczbaWarstw - 1], schowekTablicGatunkowych[trybTestowy][i]))
+                    liczbaZgodnych++;
+            }
+            ulamek = (liczbaZgodnych/tablicaRozmiarowTablicIrysowych[trybTestowy])*100;
+            if(ulamek >= 90.0)
+                cout << "Poprawnosc klasyfikacji danych po zakonczeniu uczenia:\t" << ulamek << '%' << endl;
+            if(ulamek == 100.0) {
+                cout << "Uczenie zakonczone. Liczba obiegow petli potrzebnych do wyuczenia sieci:\t" << licznikPetli << endl << endl;
+                niewyuczona = false;
+                continue;
+            }
+        }
+
 
         nowaOdpowiedzSieci(siecNeuronowa, liczbaWarstw, tablicaWielkosciWarstw, schowekTablicParametrowych[trybTreningowy][irisTrainingArrayHandler], liczbaWejsc);
 //        wypiszSiecWKonsoli(siecNeuronowa, liczbaWarstw, tablicaWielkosciWarstw, schowekTablicParametrowych[trybTreningowy][irisTrainingArrayHandler]);
@@ -139,20 +155,4 @@ void uczSiecNeuronowa(Neuron** siecNeuronowa, int liczbaWarstw, int* tablicaWiel
 //            rozgrzanie = true;
     }
 
-
-
-    double liczbaZgodnych = 0;
-    double ulamek = 0.0;
-
-    mieszajTablice(schowekTablicParametrowych[trybTestowy], schowekTablicGatunkowych[trybTestowy], tablicaRozmiarowTablicIrysowych[trybTestowy]);
-    liczbaZgodnych = 0;
-    for(int i = 0; i < tablicaRozmiarowTablicIrysowych[trybTestowy]; i++) {
-        nowaOdpowiedzSieci(siecNeuronowa, liczbaWarstw, tablicaWielkosciWarstw, schowekTablicParametrowych[trybTestowy][i], liczbaWejsc);
-        if(poprawnoscOdpowiedzi(siecNeuronowa[liczbaWarstw - 1], schowekTablicGatunkowych[trybTestowy][i]))
-            liczbaZgodnych++;
-    }
-    ulamek = (liczbaZgodnych/tablicaRozmiarowTablicIrysowych[trybTestowy])*100;
-    cout << "Poprawnosc klasyfikacji danych po zakonczeniu uczenia: " << ulamek << '%' << endl;
-
-    cout << endl;
 }

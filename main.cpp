@@ -54,7 +54,7 @@ int main()
 
 
     for(int i = 0; i < 3; i++) {
-        for(int j = 0; j < schowekRozmiarowTablicIrysow[trybTreningowy]; j++) {
+        for(int j = 0; j < schowekRozmiarowTablicIrysow[i]; j++) {
             delete [] schowekTablicParametrowych[i][j];
             delete [] schowekTablicGatunkowych[i][j];
         }
@@ -65,7 +65,7 @@ int main()
     delete [] schowekTablicGatunkowych;
 
     for(int i = 0; i < liczbaWarstw; i++)
-        delete siecNeuronowa[i];
+        delete [] siecNeuronowa[i];
     delete [] siecNeuronowa;
 
     delete [] tablicaWielkosciWarstw;
