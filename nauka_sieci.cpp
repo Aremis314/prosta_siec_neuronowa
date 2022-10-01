@@ -78,7 +78,14 @@ void uczSiecNeuronowa(Neuron** siecNeuronowa, int liczbaWarstw, int* tablicaWiel
 
     while(niewyuczona) {           // sredniBladSieci > 0.1 || rozgrzanie == false
 
+        if(licznikPetli >= 3000000) {
+            cout << "Sieci nie udalo sie nauczyc wystarczajaco dobrze. Zmien parametry sieci lub sprobuj ponownie z tymi samymi! :)" << endl;
+            break;
+        }
+
         irisTrainingArrayHandler = licznikPetli % tablicaRozmiarowTablicIrysowych[trybTreningowy];
+        if(licznikPetli % 10000000 == 0 && licznikPetli > 0)
+            cout << licznikPetli << endl;
 
         if(licznikPetli % tablicaRozmiarowTablicIrysowych[trybTreningowy] == 0) {
             mieszajTablice(schowekTablicParametrowych[trybTreningowy], schowekTablicGatunkowych[trybTreningowy], tablicaRozmiarowTablicIrysowych[trybTreningowy]);
@@ -90,12 +97,25 @@ void uczSiecNeuronowa(Neuron** siecNeuronowa, int liczbaWarstw, int* tablicaWiel
                     liczbaZgodnych++;
             }
             ulamek = (liczbaZgodnych/tablicaRozmiarowTablicIrysowych[trybTestowy])*100;
-            if(ulamek >= 90.0)
-                cout << "Poprawnosc klasyfikacji danych po zakonczeniu uczenia:\t" << ulamek << '%' << endl;
-            if(ulamek == 100.0) {
-                cout << "Uczenie zakonczone. Liczba obiegow petli potrzebnych do wyuczenia sieci:\t" << licznikPetli << endl << endl;
-                niewyuczona = false;
-                continue;
+//            if(ulamek >= 90.0)
+//                cout << "Poprawnosc klasyfikacji danych po zakonczeniu uczenia:\t" << ulamek << '%' << endl;
+
+            if(ulamek > 97.0) {
+                liczbaZgodnych = 0;
+                ulamek = 0.0;
+                for(int i = 0; i < tablicaRozmiarowTablicIrysowych[trybWalidacyjny]; i++) {
+                    nowaOdpowiedzSieci(siecNeuronowa, liczbaWarstw, tablicaWielkosciWarstw, schowekTablicParametrowych[trybWalidacyjny][i], liczbaWejsc);
+                    if(poprawnoscOdpowiedzi(siecNeuronowa[liczbaWarstw - 1], schowekTablicGatunkowych[trybWalidacyjny][i]))
+                        liczbaZgodnych++;
+                }
+                ulamek = (liczbaZgodnych/tablicaRozmiarowTablicIrysowych[trybTestowy])*100;
+//                cout << "Poprawnosc klasyfikacji na danych walidacyjnych:\t" << ulamek << '%' << endl;
+
+                if(ulamek > 97.0) {
+                    cout << "Uczenie zakonczone. Liczba obiegow petli potrzebnych do wyuczenia sieci:\t" << licznikPetli << endl << endl;
+                    niewyuczona = false;
+                    continue;
+                }
             }
         }
 
